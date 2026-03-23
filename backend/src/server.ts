@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import motasRoutes from './routes/motas.routes';
+import pecasRoutes from './routes/pecas.routes';
+import equipasRoutes from './routes/equipas.routes';
+import pilotosRoutes from './routes/pilotos.routes';
 
 dotenv.config();
 
@@ -11,15 +14,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-//confirmar que o servidor está vivo
+// Rota de teste para verificar se o servidor está a funcionar
 app.get('/', (req, res) => {
-  res.json({ message: 'PaddockShare API running',});
+  res.json({ message: 'PaddockShare API running'});
 });
 
 app.use('/api/motas', motasRoutes);
+app.use('/api/pecas', pecasRoutes);
+app.use('/api/equipas', equipasRoutes);
+app.use('/api/pilotos', pilotosRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server running on porrt: ${PORT}`);
+  console.log(`Server running on port: ${PORT}`);
 });
 
 export default app;
