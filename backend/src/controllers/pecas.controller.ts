@@ -4,23 +4,19 @@ interface Peca {
   id: string;
   nome: string;
   descricao: string;
-  id_mota: string;
   categoria: string;
-  disponivel: boolean;
-  id_proprietario: string;
 }
 
 let pecas: Peca[] = [
-  { id: '1', nome: 'Filtro de Ar', descricao: 'Filtro original KTM', id_mota: '1', categoria: 'Motor', disponivel: true, id_proprietario: 'user1' },
-  { id: '2', nome: 'Amortecedor Traseiro', descricao: 'WP XPLOR usado 1 rally', id_mota: '1', categoria: 'Suspensão', disponivel: true, id_proprietario: 'user2' },
-  { id: '3', nome: 'Cabo de Embraiagem', descricao: 'Cabo novo em embalagem', id_mota: '2', categoria: 'Transmissão', disponivel: false, id_proprietario: 'user1' },
+  { id: '1', nome: 'Filtro de Ar', descricao: 'Filtro original KTM', categoria: 'Motor' },
+  { id: '2', nome: 'Amortecedor Traseiro', descricao: 'WP XPLOR usado 1 rally', categoria: 'Suspensão' },
+  { id: '3', nome: 'Cabo de Embraiagem', descricao: 'Cabo novo em embalagem', categoria: 'Transmissão' },
 ];
 
 export const getPecas = (req: Request, res: Response): void => {
-  const { mota, categoria } = req.query;
+  const { categoria } = req.query;
   let resultado = [...pecas];
 
-  if (mota) resultado = resultado.filter(p => p.id_mota === mota);
   if (categoria) resultado = resultado.filter(p => p.categoria.toLowerCase() === String(categoria).toLowerCase());
 
   res.status(200).json(resultado);
@@ -40,8 +36,8 @@ export const getPeca = (req: Request, res: Response): void => {
 export const createPeca = (req: Request, res: Response): void => {
   const { nome, descricao, id_mota, categoria, disponivel, id_proprietario } = req.body;
 
-  if (!nome || !id_mota || !categoria) {
-    res.status(400).json({ error: 'Nome, id_mota e categoria são obrigatórios' });
+  if (!nome || !categoria) {
+    res.status(400).json({ error: 'Nome e categoria são obrigatórios' });
     return;
   }
 
@@ -49,10 +45,7 @@ export const createPeca = (req: Request, res: Response): void => {
     id: String(pecas.length + 1),
     nome,
     descricao,
-    id_mota,
     categoria,
-    disponivel: disponivel ?? true,
-    id_proprietario
   };
 
   pecas.push(nova);
