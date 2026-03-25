@@ -1,48 +1,61 @@
 //Item_Stock
 import { Request, Response } from 'express';
+import { supabase } from '../supabase';
 
-interface ItemStock {
-  id: string;
-  id_peca: string;
-  id_proprietario: string;
-    quantidade: number;
-  disponivel: boolean;
-  notas: string;
-  //criar um estado e data?
-}
-
-let stock: ItemStock[] = [
-  { id: '1', id_peca: '1', id_proprietario: '1', quantidade: 2, disponivel: true, notas: 'Filtro usado apenas 1 rally' },
-  { id: '2', id_peca: '1', id_proprietario: '2', quantidade: 1, disponivel: true, notas: 'Filtro novo em caixa' },
-  { id: '3', id_peca: '2', id_proprietario: '1', quantidade: 1, disponivel: false, notas: 'Amortecedor a precisar de revisão' },
-];
+// interface ItemStock {
+//   id: string;
+//   id_peca: string;
+//   id_proprietario: string;
+//     quantidade: number;
+//   disponivel: boolean;
+//   notas: string;
+//   //criar um estado e data?
+// }
+// 
+// let stock: ItemStock[] = [
+//   { id: '1', id_peca: '1', id_proprietario: '1', quantidade: 2, disponivel: true, notas: 'Filtro usado apenas 1 rally' },
+//   { id: '2', id_peca: '1', id_proprietario: '2', quantidade: 1, disponivel: true, notas: 'Filtro novo em caixa' },
+//   { id: '3', id_peca: '2', id_proprietario: '1', quantidade: 1, disponivel: false, notas: 'Amortecedor a precisar de revisão' },
+// ];
 
 // Listar todo o stock — com filtro opcional por peça ou proprietário
-export const getStock = (req: Request, res: Response): void => {
+export const getStock = async (req: Request, res: Response): Promise<void> => {
   const { id_peca, id_proprietario } = req.query;
-  let resultado = [...stock];
 
-  if (id_peca) resultado = resultado.filter(s => s.id_peca === id_peca);
-  if (id_proprietario) resultado = resultado.filter(s => s.id_proprietario === id_proprietario);
+  let query = supabase.from('item_stock').select('*');
 
-  res.status(200).json(resultado);
+  if (id_peca) query = query.eq('id_peca', id_peca);
+  if (id_proprietario) query = query.eq('id_proprietario', id_proprietario);
+
+  const { data, error } = await query;
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json(data);
 };
 
 // Ver um item específico
-export const getItemStock = (req: Request, res: Response): void => {
-  const item = stock.find(s => s.id === req.params.id);
+export const getItemStock = async (req: Request, res: Response): Promise<void> => {
+  const { data, error } = await supabase
+    .from('item_stock')
+    .select('*')
+    .eq('id', req.params.id)
+    .single();
 
-  if (!item) {
+  if (error) {
     res.status(404).json({ error: 'Item não encontrado' });
     return;
   }
 
-  res.status(200).json(item);
+  res.status(200).json(data);
 };
 
 
 // Piloto adiciona uma peça ao seu stock
-export const createItemStock = (req: Request, res: Response): void => {
+export const createItemStock = async (req: Request, res: Response): Promise<void> => {
   const { id_peca, id_proprietario, quantidade, disponivel, notas } = req.body;
 
   if (!id_peca || !id_proprietario) {
@@ -55,51 +68,63 @@ export const createItemStock = (req: Request, res: Response): void => {
     return;
   }
 
-  const novo: ItemStock = {
-    id: String(stock.length + 1),
-    id_peca,
-    id_proprietario,
-    quantidade: quantidade ?? 1,
-    disponivel: disponivel ?? true,
-    notas: notas ?? ''
-  };
+  const { data, error } = await supabase
+    .from('item_stock')
+    .insert({
+      id_peca,
+      id_proprietario,
+      quantidade: quantidade ?? 1,
+      disponivel: disponivel ?? true,
+      notas: notas ?? ''
+    })
+    .select()
+    .single();
 
-  stock.push(novo);
-  res.status(201).json(novo);
-};
-
-
-// Atualizar disponibilidade ou notas
-export const updateItemStock = (req: Request, res: Response): void => {
-  const idx = stock.findIndex(s => s.id === req.params.id);
-
-  if (idx === -1) {
-    res.status(404).json({ error: 'Item não encontrado' });
+  if (error) {
+    res.status(500).json({ error: error.message });
     return;
   }
 
-  const atualizado = { ...stock[idx], ...req.body };
+  res.status(201).json(data);
+};
+
+// Atualizar disponibilidade ou notas
+export const updateItemStock = async (req: Request, res: Response): Promise<void> => {
+  const updates = { ...req.body };
 
   // Se quantidade chegar a 0 fica automaticamente indisponível
-  if (atualizado.quantidade <= 0) {
-    atualizado.quantidade = 0;
-    atualizado.disponivel = false;
+  if (updates.quantidade !== undefined && updates.quantidade <= 0) {
+    updates.quantidade = 0;
+    updates.disponivel = false;
   }
 
-  stock[idx] = atualizado;
-  res.status(200).json(stock[idx]);
+  const { data, error } = await supabase
+    .from('item_stock')
+    .update(updates)
+    .eq('id', req.params.id)
+    .select()
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json(data);
 };
 
 
 // Remover item do stock
-export const deleteItemStock = (req: Request, res: Response): void => {
-  const idx = stock.findIndex(s => s.id === req.params.id);
+export const deleteItemStock = async (req: Request, res: Response): Promise<void> => {
+  const { error } = await supabase
+    .from('item_stock')
+    .delete()
+    .eq('id', req.params.id);
 
-  if (idx === -1) {
-    res.status(404).json({ error: 'Item não encontrado' });
+  if (error) {
+    res.status(500).json({ error: error.message });
     return;
   }
 
-  stock.splice(idx, 1);
   res.status(200).json({ message: 'Item removido do stock com sucesso' });
 };

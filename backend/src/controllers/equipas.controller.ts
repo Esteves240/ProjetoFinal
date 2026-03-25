@@ -1,34 +1,51 @@
 import { Request, Response } from 'express';
+import { supabase } from '../supabase';
 
-interface Equipa {
-  id: string;
-  nome: string;
-  pais: string;
-  email: string;
-}
+// interface Equipa {
+//   id: string;
+//   nome: string;
+//   pais: string;
+//   email: string;
+// }
+// 
+// let equipas: Equipa[] = [
+//   { id: '1', nome: 'KTM Rally Team', pais: 'Austria', email: 'exemple@ktm.com' },
+//   { id: '2', nome: 'Yamaha Supported Team', pais: 'Japan', email: 'exemple@yamaha.com' },
+//   { id: '3', nome: 'HRC Honda', pais: 'Japan', email: 'exemple@honda.com' },
+// ];
 
-let equipas: Equipa[] = [
-  { id: '1', nome: 'KTM Rally Team', pais: 'Austria', email: 'exemple@ktm.com' },
-  { id: '2', nome: 'Yamaha Supported Team', pais: 'Japan', email: 'exemple@yamaha.com' },
-  { id: '3', nome: 'HRC Honda', pais: 'Japan', email: 'exemple@honda.com' },
-];
 
-export const getEquipas = (req: Request, res: Response): void => {
-  res.status(200).json(equipas);
+export const getEquipas = async (req: Request, res: Response): Promise<void> => {
+  const { data, error } = await supabase
+    .from('equipa')
+    .select('*');
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json(data);
 };
 
-export const getEquipa = (req: Request, res: Response): void => {
-  const equipa = equipas.find(e => e.id === req.params.id);
 
-  if (!equipa) {
+export const getEquipa = async (req: Request, res: Response): Promise<void> => {
+  const { data, error } = await supabase
+    .from('equipa')
+    .select('*')
+    .eq('id', req.params.id)
+    .single();
+
+  if (error) {
     res.status(404).json({ error: 'Equipa não encontrada' });
     return;
   }
 
-  res.status(200).json(equipa);
+  res.status(200).json(data);
 };
 
-export const createEquipa = (req: Request, res: Response): void => {
+
+export const createEquipa = async (req: Request, res: Response): Promise<void> => {
   const { nome, pais, email } = req.body;
 
   if (!nome || !pais || !email) {
@@ -36,13 +53,16 @@ export const createEquipa = (req: Request, res: Response): void => {
     return;
   }
 
-  const nova: Equipa = {
-    id: String(equipas.length + 1),
-    nome,
-    pais,
-    email,
-  };
+  const { data, error } = await supabase
+    .from('equipa')
+    .insert({ nome, pais, email })
+    .select()
+    .single();
 
-  equipas.push(nova);
-  res.status(201).json(nova);
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(201).json(data);
 };

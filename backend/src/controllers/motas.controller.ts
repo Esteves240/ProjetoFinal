@@ -1,36 +1,62 @@
 import { Request, Response } from 'express';
+import { supabase } from '../supabase';
 
-// Dados temporários — mais tarde vêm do Supabase
-const motas = [
-  { id: '1', marca: 'KTM', modelo: '450 Rally', ano: 2023 },
-  { id: '2', marca: 'Yamaha', modelo: 'WR450F', ano: 2022 },
-  { id: '3', marca: 'Honda', modelo: 'CRF450 Rally', ano: 2023 },
-];
+// Dados temporários
+// const motas = [
+//   { id: '1', marca: 'KTM', modelo: '450 Rally', ano: 2023 },
+//   { id: '2', marca: 'Yamaha', modelo: 'WR450F', ano: 2022 },
+//   { id: '3', marca: 'Honda', modelo: 'CRF450 Rally', ano: 2023 },
+// ];
 
-export const getMotas = (req: Request, res: Response): void => {
-  res.status(200).json(motas);
+
+export const getMotas = async (req: Request, res: Response): Promise<void> => {
+  const { data, error } = await supabase
+    .from('mota')
+    .select('*');
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json(data);
 };
 
-export const getMota = (req: Request, res: Response): void => {
-  const mota = motas.find(m => m.id === req.params.id);
 
-  if (!mota) {
+export const getMota = async (req: Request, res: Response): Promise<void> => {
+  const { data, error } = await supabase
+    .from('mota')
+    .select('*')
+    .eq('id', req.params.id)
+    .single();
+
+  if (error) {
     res.status(404).json({ error: 'Mota não encontrada' });
     return;
   }
 
-  res.status(200).json(mota);
+  res.status(200).json(data);
 };
 
-export const createMota = (req: Request, res: Response): void => {
+
+export const createMota = async (req: Request, res: Response): Promise<void> => {
   const { marca, modelo, ano } = req.body;
 
   if (!marca || !modelo || !ano) {
-    res.status(400).json({ error: 'Marca, modelo e ano são obrigatórios' });
+    res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     return;
   }
 
-  const nova = { id: String(motas.length + 1), marca, modelo, ano };
-  motas.push(nova);
-  res.status(201).json(nova);
+  const { data, error } = await supabase
+    .from('mota')
+    .insert({ marca, modelo, ano })
+    .select()
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(201).json(data);
 };
