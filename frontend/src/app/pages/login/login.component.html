@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="card">
+    <h1>PaddockShare</h1>
+    <h2>Login</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="exemplo@rally.com" />
+        @if (email?.invalid && email?.touched) {
+          <span class="erro">Email inválido</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="insira password"
+        />
+        @if (password?.invalid && password?.touched) {
+          <span class="erro">Password deve ter pelo menos 6 caracteres</span>
+        }
+      </div>
+
+      @if (erro) {
+        <div class="erro-geral">{{ erro }}</div>
+      }
+
+      <button type="submit" [disabled]="loginForm.invalid || aCarregar">
+        {{ aCarregar ? 'A entrar...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <p>Não tens conta? <a routerLink="/register">Regista-te aqui</a></p>
+  </div>
+</div>
