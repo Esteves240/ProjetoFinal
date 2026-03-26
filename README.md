@@ -132,5 +132,4 @@ SUPABASE_KEY
 Uma `Peca` representa a definição técnica (nome, categoria). Um `Item_Stock` representa a unidade física que um piloto tem no paddock. Esta separação permite que vários pilotos tenham a mesma peça disponível, com quantidades independentes, evitando duplicação de dados.
 
 ## URL de Produção
-
-🚧 Em desenvolvimento — deploy previsto em Render.com
+https://paddockshare-backend.onrender.com
