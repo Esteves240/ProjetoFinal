@@ -1,0 +1,78 @@
+<div class="container">
+  <div class="card">
+    <h1>PaddockShare</h1>
+    <h2>Registo</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" formControlName="nome" placeholder="insira o nome" />
+        @if (nome?.invalid && nome?.touched) {
+          <span class="erro">Nome obrigatório (mínimo 2 caracteres)</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="exemplo@raly.com" />
+        @if (email?.invalid && email?.touched) {
+          <span class="erro">Email inválido</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="nr_piloto">Número de Piloto</label>
+        <input id="nr_piloto" type="number" formControlName="nr_piloto" placeholder="ex: 42" />
+        @if (nr_piloto?.invalid && nr_piloto?.touched) {
+          <span class="erro">Número de piloto obrigatório</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="telemovel">Telemóvel / Rádio</label>
+        <input
+          id="telemovel"
+          type="text"
+          formControlName="telemovel"
+          placeholder="ex: 912345678 (opcional)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="mínimo 6 caracteres"
+        />
+        @if (password?.invalid && password?.touched) {
+          <span class="erro">Password deve ter pelo menos 6 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="confirmarPassword">Confirmar Password</label>
+        <input
+          id="confirmarPassword"
+          type="password"
+          formControlName="confirmarPassword"
+          placeholder="repete a password"
+        />
+        @if (registerForm.errors?.['passwordsDiferentes'] && confirmarPassword?.touched) {
+          <span class="erro">As passwords não coincidem</span>
+        }
+      </div>
+
+      @if (erro) {
+        <div class="erro-geral">{{ erro }}</div>
+      }
+
+      <button type="submit" [disabled]="registerForm.invalid || aCarregar">
+        {{ aCarregar ? 'A registar...' : 'Registar' }}
+      </button>
+    </form>
+
+    <p>Já tens conta? <a routerLink="/login">Faz login aqui</a></p>
+  </div>
+</div>
