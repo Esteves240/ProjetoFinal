@@ -7,6 +7,8 @@ import equipasRoutes from './routes/equipas.routes';
 import pilotosRoutes from './routes/pilotos.routes';
 import stockRoutes from './routes/stock.routes';
 import pedidosRoutes from './routes/pedidos.routes';
+import pecaMotaRoutes from './routes/pecaMota.routes';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ app.use('/api/equipas', equipasRoutes);
 app.use('/api/pilotos', pilotosRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/peca-mota', pecaMotaRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port: ${PORT}`);
