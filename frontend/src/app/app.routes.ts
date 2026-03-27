@@ -23,6 +23,11 @@ export const routes: Routes = [
     canActivate: [authGuard], //o dashboard só é acessível a utilizadores autenticados. Se tentar aceder sem estar logado,
     //o guard redireciona para o login
   },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./pages/perfil/perfil.component').then((m) => m.PerfilComponent),
+    canActivate: [authGuard],
+  },
 ];
 
 //loadComponent — carrega o componente só quando o utilizador navega para essa rota
