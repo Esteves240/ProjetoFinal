@@ -1,0 +1,68 @@
+<div class="layout">
+  <header>
+    <div class="header-content">
+      <h1>PaddockShare</h1>
+      <button class="btn-voltar" (click)="voltarDashboard()">← Dashboard</button>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <div class="card-perfil">
+      <h2>O Meu Perfil</h2>
+
+      @if (mensagem) {
+        <div class="alerta sucesso">{{ mensagem }}</div>
+      }
+      @if (erro) {
+        <div class="alerta erro">{{ erro }}</div>
+      }
+
+      <form [formGroup]="perfilForm" (ngSubmit)="guardar()">
+        <div class="secao">
+          <h3>Dados Pessoais</h3>
+
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" formControlName="nome" placeholder="O teu nome" />
+          </div>
+
+          <div class="field">
+            <label>Número de Piloto</label>
+            <input type="number" formControlName="nr_piloto" placeholder="ex: 42" />
+          </div>
+
+          <div class="field">
+            <label>Telemóvel / Rádio</label>
+            <input type="text" formControlName="telemovel" placeholder="ex: 912345678 (opcional)" />
+          </div>
+        </div>
+
+        <div class="secao">
+          <h3>A Minha Mota</h3>
+
+          <div class="field">
+            <label>Seleciona a tua mota</label>
+            <select formControlName="id_mota" (change)="onMotaChange($event)">
+              <option value="">Sem mota associada</option>
+              @for (mota of motas; track mota.id) {
+                <option [value]="mota.id">{{ mota.marca }} {{ mota.modelo }} {{ mota.ano }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="secao">
+          <h3>Email</h3>
+          <div class="field">
+            <label>Email (não editável)</label>
+            <input type="email" [value]="piloto?.email" disabled />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primario" [disabled]="perfilForm.invalid || aCarregar">
+          {{ aCarregar ? 'A guardar...' : 'Guardar Perfil' }}
+        </button>
+      </form>
+    </div>
+  </main>
+</div>
