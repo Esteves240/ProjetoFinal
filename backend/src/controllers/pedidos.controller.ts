@@ -23,11 +23,28 @@ const STATUS_VALIDOS = ['Aprovado', 'Recusado', 'Devolvido'];
 
 // Listar pedidos — filtro por piloto (painel do piloto)
 export const getPedidos = async (req: Request, res: Response): Promise<void> => {
-  const { id_piloto } = req.query;
+  const { id_piloto, id_proprietario } = req.query;
 
   let query = supabase.from('pedido_emprestimo').select('*');
 
   if (id_piloto) query = query.eq('id_piloto', id_piloto);
+
+  // Filtra pedidos onde o proprietário do item é este piloto
+  if (id_proprietario) {
+    const { data: itemsDoProprietario } = await supabase
+      .from('item_stock')
+      .select('id')
+      .eq('id_proprietario', id_proprietario);
+
+    const ids = (itemsDoProprietario ?? []).map((i: any) => i.id);
+
+    if (ids.length === 0) {
+      res.status(200).json([]);
+      return;
+    }
+
+    query = query.in('id_item_stock', ids).eq('status', 'Pendente');
+  }
 
   const { data, error } = await query;
 

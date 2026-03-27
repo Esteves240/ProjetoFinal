@@ -50,8 +50,8 @@ export const getPiloto = async (req: Request, res: Response): Promise<void> => {
 export const createPiloto = async (req: Request, res: Response): Promise<void> => {
   const { nome, nr_piloto, id_equipa, email, telemovel, id_mota } = req.body;
 
-  if (!nome || !nr_piloto || !id_equipa || !email) {
-    res.status(400).json({ error: 'Nome, nr_piloto, id_equipa e email são obrigatórios' });
+  if (!nome || !nr_piloto || !email) {
+    res.status(400).json({ error: 'Nome, nr_piloto e email são obrigatórios' });
     return;
   }
 
@@ -71,9 +71,19 @@ export const createPiloto = async (req: Request, res: Response): Promise<void> =
 
 
 export const updatePiloto = async (req: Request, res: Response): Promise<void> => {
+  const { nome, nr_piloto, telemovel, id_mota, id_equipa } = req.body;
+
+  const dados = {
+    nome,
+    nr_piloto,
+    telemovel: telemovel || null,
+    id_mota: id_mota || null,
+    id_equipa: id_equipa || null
+  };
+
   const { data, error } = await supabase
     .from('piloto')
-    .update(req.body)
+    .update(dados)
     .eq('id', req.params.id)
     .select()
     .single();
@@ -85,7 +95,6 @@ export const updatePiloto = async (req: Request, res: Response): Promise<void> =
 
   res.status(200).json(data);
 };
-
 
 export const deletePiloto = async (req: Request, res: Response): Promise<void> => {
   const { error } = await supabase
