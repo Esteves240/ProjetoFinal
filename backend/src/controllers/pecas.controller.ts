@@ -16,11 +16,12 @@ import { supabase } from '../supabase';
 
 
 export const getPecas = async (req: Request, res: Response): Promise<void> => {
-  const { categoria } = req.query;
+  const { categoria, part_number } = req.query;
 
   let query = supabase.from('peca').select('*');
 
   if (categoria) query = query.eq('categoria', categoria);
+  if (part_number) query = query.eq('part_number', part_number);
 
   const { data, error } = await query;
 
@@ -62,10 +63,10 @@ const CATEGORIAS_VALIDAS = [
 ];
 
 export const createPeca = async (req: Request, res: Response): Promise<void> => {
-  const { nome, descricao, categoria } = req.body;
+  const { nome, descricao, categoria, part_number } = req.body;
 
-  if (!nome || !categoria) {
-    res.status(400).json({ error: 'Nome e categoria são obrigatórios' });
+  if (!nome || !categoria || !part_number) {
+    res.status(400).json({ error: 'Nome, categoria e part_number são obrigatórios' });
     return;
   }
 
@@ -78,7 +79,7 @@ export const createPeca = async (req: Request, res: Response): Promise<void> => 
 
   const { data, error } = await supabase
     .from('peca')
-    .insert({ nome, descricao, categoria })
+    .insert({ nome, descricao, categoria, part_number })
     .select()
     .single();
 

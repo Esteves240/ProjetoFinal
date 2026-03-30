@@ -1,0 +1,356 @@
+<div class="layout">
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <h1>PaddockShare</h1>
+      <div class="piloto-info">
+        <span>{{ piloto?.nome }} · #{{ piloto?.nr_piloto }}</span>
+        @if (motaPiloto) {
+          <span class="mota-badge"> {{ motaPiloto.marca }} {{ motaPiloto.modelo }}</span>
+          @if (motaPiloto.url_documento) {
+            <button class="btn-catalogo" (click)="downloadCatalogo()">Catálogo</button>
+          }
+        }
+        <button class="btn-perfil" routerLink="/perfil">Perfil</button>
+        <button class="btn-logout" (click)="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mensagens -->
+  @if (mensagem) {
+    <div class="alerta sucesso">{{ mensagem }}</div>
+  }
+  @if (erro) {
+    <div class="alerta erro">{{ erro }}</div>
+  }
+
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button [class.ativa]="tabAtiva === 'pecas'" (click)="mudarTab('pecas')">Peças</button>
+    <button [class.ativa]="tabAtiva === 'stock'" (click)="mudarTab('stock')">O Meu Stock</button>
+    <button [class.ativa]="tabAtiva === 'pedidos'" (click)="mudarTab('pedidos')">
+      Pedidos
+      @if (pedidosPendentes.length > 0) {
+        <span class="badge">{{ pedidosPendentes.length }}</span>
+      }
+    </button>
+    <button [class.ativa]="tabAtiva === 'historico'" (click)="mudarTab('historico')">
+      Histórico
+    </button>
+  </nav>
+
+  <!-- Conteúdo -->
+  <main class="conteudo">
+    <!-- TAB: PEÇAS -->
+    @if (tabAtiva === 'pecas') {
+      <div class="secao">
+        <div class="secao-header">
+          <h2>Peças Disponíveis no Paddock</h2>
+          <button class="btn-primario" (click)="mostrarFormPeca = !mostrarFormPeca">
+            {{ mostrarFormPeca ? 'Cancelar' : '+ Nova Peça' }}
+          </button>
+        </div>
+        @if (!piloto?.id_mota) {
+          <div class="aviso-mota">
+            ! Ainda não tens uma mota associada ao teu perfil.
+            <a routerLink="/perfil">Completa o teu perfil</a> para ver as peças disponíveis.
+          </div>
+        }
+
+        <!-- Filtros categoria -->
+        <div class="filtros">
+          @for (cat of categorias; track cat) {
+            <button
+              class="filtro"
+              [class.ativo]="categoriaFiltro === cat"
+              (click)="filtrarCategoria(cat)"
+            >
+              {{ cat }}
+            </button>
+          }
+        </div>
+
+        <!-- Formulário nova peça -->
+        @if (mostrarFormPeca) {
+          <div class="card-form">
+            <h3>Nova Peça</h3>
+            <form [formGroup]="novaPecaForm" (ngSubmit)="criarPeca()">
+              <div class="field">
+                <label>Part Number</label>
+                <input type="text" formControlName="part_number" placeholder="ex: 76706015000" />
+                @if (
+                  novaPecaForm.get('part_number')?.invalid &&
+                  novaPecaForm.get('part_number')?.touched
+                ) {
+                  <span class="erro">Part number obrigatório</span>
+                }
+              </div>
+
+              <div class="field">
+                <label>Nome</label>
+                <input type="text" formControlName="nome" placeholder="ex: Filtro de Ar" />
+                @if (novaPecaForm.get('nome')?.invalid && novaPecaForm.get('nome')?.touched) {
+                  <span class="erro">Nome obrigatório</span>
+                }
+              </div>
+
+              <div class="field">
+                <label>Descrição</label>
+                <input type="text" formControlName="descricao" placeholder="descrição opcional" />
+              </div>
+
+              <div class="field">
+                <label>Categoria</label>
+                <select formControlName="categoria">
+                  <option value="">Seleciona uma categoria</option>
+                  @for (cat of categorias; track cat) {
+                    <option [value]="cat">{{ cat }}</option>
+                  }
+                </select>
+                @if (
+                  novaPecaForm.get('categoria')?.invalid && novaPecaForm.get('categoria')?.touched
+                ) {
+                  <span class="erro">Categoria obrigatória</span>
+                }
+              </div>
+
+              <!-- Peça universal ou específica -->
+              <div class="field-check">
+                <label class="check-label">
+                  <input type="checkbox" formControlName="universal" />
+                  <span>Peça universal — compatível com todas as motas</span>
+                </label>
+              </div>
+
+              @if (!novaPecaForm.get('universal')?.value) {
+                <div class="field">
+                  <label>Associar à mota</label>
+                  <select formControlName="id_mota">
+                    <option value="">Seleciona uma mota</option>
+                    @for (mota of motas; track mota.id) {
+                      <option [value]="mota.id">
+                        {{ mota.marca }} {{ mota.modelo }} {{ mota.ano }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              }
+
+              <button type="submit" class="btn-primario" [disabled]="novaPecaForm.invalid">
+                Criar Peça
+              </button>
+            </form>
+          </div>
+        }
+
+        <!-- Lista de peças -->
+        @if (pecas.length === 0) {
+          <p class="vazio">Nenhuma peça encontrada.</p>
+        }
+        <div class="grid">
+          @for (peca of pecas; track peca.id) {
+            <div class="card">
+              <div class="card-header">
+                <span class="categoria-tag">{{ peca.categoria }}</span>
+              </div>
+              <h3>{{ peca.nome }}</h3>
+              <p>{{ peca.descricao }}</p>
+              <button class="btn-secundario" (click)="pedirEmprestimo(peca)">
+                Pedir Empréstimo
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (mostrarModalPedido && pecaSelecionada) {
+          <div class="modal-overlay" (click)="fecharModal()">
+            <div class="modal" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>Pedir — {{ pecaSelecionada.nome }}</h3>
+                <button class="btn-fechar" (click)="fecharModal()">✕</button>
+              </div>
+
+              <p class="modal-sub">
+                Part Number: <strong>{{ pecaSelecionada.part_number }}</strong>
+              </p>
+
+              @if (stockDisponivelPeca.length === 0) {
+                <p class="vazio">Nenhum piloto tem esta peça disponível no paddock.</p>
+              } @else {
+                <p class="modal-instrucao">Escolhe a quem queres pedir:</p>
+                <div class="lista-stock">
+                  @for (item of stockDisponivelPeca; track item.id) {
+                    <div class="linha-stock">
+                      <div>
+                        <span class="qtd">{{ item.quantidade }} disponível</span>
+                        <span class="proprietario"> · {{ item.nome_proprietario }}</span>
+                        @if (item.telemovel_proprietario) {
+                          <span class="notas-stock"> · {{ item.telemovel_proprietario }}</span>
+                        }
+                        @if (item.notas) {
+                          <span class="notas-stock"> — {{ item.notas }}</span>
+                        }
+                      </div>
+                      <div class="acoes-modal">
+                        <input
+                          type="number"
+                          #qtdInput
+                          [max]="item.quantidade"
+                          min="1"
+                          value="1"
+                          class="input-qtd"
+                        />
+                        <button
+                          class="btn-primario btn-sm"
+                          (click)="confirmarPedido(item, +qtdInput.value)"
+                        >
+                          Pedir
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB: STOCK -->
+    @if (tabAtiva === 'stock') {
+      <div class="secao">
+        <div class="secao-header">
+          <h2>O Meu Stock</h2>
+          <button class="btn-primario" (click)="mostrarFormStock = !mostrarFormStock">
+            {{ mostrarFormStock ? 'Cancelar' : '+ Adicionar ao Stock' }}
+          </button>
+        </div>
+
+        <!-- Formulário novo stock -->
+        @if (mostrarFormStock) {
+          <div class="card-form">
+            <h3>Adicionar Peça ao Stock</h3>
+            <form [formGroup]="novoStockForm" (ngSubmit)="adicionarStock()">
+              <div class="field">
+                <label>Peça</label>
+                <select formControlName="id_peca">
+                  <option value="">Seleciona uma peça</option>
+                  @for (peca of pecas; track peca.id) {
+                    <option [value]="peca.id">{{ peca.nome }} — {{ peca.categoria }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field">
+                <label>Quantidade</label>
+                <input type="number" formControlName="quantidade" min="1" />
+              </div>
+              <div class="field">
+                <label>Notas</label>
+                <input type="text" formControlName="notas" placeholder="ex: usado 1 rally" />
+              </div>
+              <button type="submit" class="btn-primario" [disabled]="novoStockForm.invalid">
+                Adicionar
+              </button>
+            </form>
+          </div>
+        }
+
+        <!-- Lista stock -->
+        @if (stock.length === 0) {
+          <p class="vazio">Não tens peças no stock. Adiciona a primeira!</p>
+        }
+        <div class="grid">
+          @for (item of stock; track item.id) {
+            <div class="card">
+              <div class="card-header">
+                <span class="categoria-tag">Qtd: {{ item.quantidade }}</span>
+                <span [class]="item.disponivel ? 'disponivel' : 'indisponivel'">
+                  {{ item.disponivel ? 'Disponível' : 'Indisponível' }}
+                </span>
+              </div>
+              <h3>{{ getNomePeca(item.id_peca) }}</h3>
+              <p>{{ item.notas }}</p>
+              <div class="acoes">
+                <button class="btn-secundario" (click)="toggleDisponivel(item)">
+                  {{ item.disponivel ? 'Marcar Indisponível' : 'Marcar Disponível' }}
+                </button>
+                <button class="btn-perigo" (click)="removerStock(item.id)">Remover</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- TAB: PEDIDOS -->
+    @if (tabAtiva === 'pedidos') {
+      <div class="secao">
+        <h2>Pedidos Pendentes</h2>
+
+        @if (pedidosPendentes.length === 0) {
+          <p class="vazio">Nenhum pedido pendente.</p>
+        }
+
+        <div class="grid">
+          @for (pedido of pedidosPendentes; track pedido.id) {
+            <div class="card">
+              <div class="card-header">
+                <span class="status-pendente">Pendente</span>
+              </div>
+              <p><strong>Peça:</strong> {{ getPecaDoItem(pedido.id_item_stock) }}</p>
+              <p><strong>Quantidade:</strong> {{ pedido.quantidade }}</p>
+              <p><strong>Pedido por:</strong> {{ getNomePiloto(pedido.id_piloto) }}</p>
+              <p><strong>Data:</strong> {{ pedido.created_at | date: 'dd/MM/yyyy HH:mm' }}</p>
+              <div class="acoes">
+                <button class="btn-primario" (click)="responderPedido(pedido.id, 'Aprovado')">
+                  Aprovar
+                </button>
+                <button class="btn-perigo" (click)="responderPedido(pedido.id, 'Recusado')">
+                  Recusar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- TAB: HISTÓRICO -->
+    @if (tabAtiva === 'historico') {
+      <div class="secao">
+        <h2>Histórico de Empréstimos</h2>
+
+        @if (historico.length === 0) {
+          <p class="vazio">Ainda não fizeste nenhum pedido.</p>
+        }
+
+        <div class="lista">
+          @for (item of historico; track item.id) {
+            <div class="linha-historico">
+              <span
+                class="tipo-historico"
+                [class]="item.tipo === 'feito' ? 'tipo-feito' : 'tipo-recebido'"
+              >
+                {{ item.tipo === 'feito' ? '↑ Pedi' : '↓ Emprestei' }}
+              </span>
+              <span>{{ getPecaDoItem(item.id_item_stock) }}</span>
+              <span>{{ item.quantidade }}x</span>
+              <span>{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span [class]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
+              @if (item.tipo === 'recebido' && item.status === 'Aprovado') {
+                <button
+                  class="btn-secundario btn-sm"
+                  (click)="responderPedido(item.id, 'Devolvido')"
+                >
+                  Marcar Devolvido
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </main>
+</div>
