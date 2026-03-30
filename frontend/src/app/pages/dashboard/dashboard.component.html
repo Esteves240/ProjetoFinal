@@ -183,7 +183,7 @@
                   @for (item of stockDisponivelPeca; track item.id) {
                     <div class="linha-stock">
                       <div>
-                        <span class="qtd">{{ item.quantidade }}x</span>
+                        <span class="qtd">{{ item.quantidade }} disponível</span>
                         <span class="proprietario"> · {{ item.nome_proprietario }}</span>
                         @if (item.telemovel_proprietario) {
                           <span class="notas-stock"> · {{ item.telemovel_proprietario }}</span>
@@ -192,9 +192,22 @@
                           <span class="notas-stock"> — {{ item.notas }}</span>
                         }
                       </div>
-                      <button class="btn-primario btn-sm" (click)="confirmarPedido(item)">
-                        Pedir
-                      </button>
+                      <div class="acoes-modal">
+                        <input
+                          type="number"
+                          #qtdInput
+                          [max]="item.quantidade"
+                          min="1"
+                          value="1"
+                          class="input-qtd"
+                        />
+                        <button
+                          class="btn-primario btn-sm"
+                          (click)="confirmarPedido(item, +qtdInput.value)"
+                        >
+                          Pedir
+                        </button>
+                      </div>
                     </div>
                   }
                 </div>
@@ -287,14 +300,15 @@
                 <span class="status-pendente">Pendente</span>
               </div>
               <p><strong>Peça:</strong> {{ getPecaDoItem(pedido.id_item_stock) }}</p>
+              <p><strong>Quantidade:</strong> {{ pedido.quantidade }}</p>
               <p><strong>Pedido por:</strong> {{ getNomePiloto(pedido.id_piloto) }}</p>
               <p><strong>Data:</strong> {{ pedido.created_at | date: 'dd/MM/yyyy HH:mm' }}</p>
               <div class="acoes">
                 <button class="btn-primario" (click)="responderPedido(pedido.id, 'Aprovado')">
-                  ✅ Aprovar
+                  Aprovar
                 </button>
                 <button class="btn-perigo" (click)="responderPedido(pedido.id, 'Recusado')">
-                  ❌ Recusar
+                  Recusar
                 </button>
               </div>
             </div>
@@ -315,9 +329,24 @@
         <div class="lista">
           @for (item of historico; track item.id) {
             <div class="linha-historico">
+              <span
+                class="tipo-historico"
+                [class]="item.tipo === 'feito' ? 'tipo-feito' : 'tipo-recebido'"
+              >
+                {{ item.tipo === 'feito' ? '↑ Pedi' : '↓ Emprestei' }}
+              </span>
+              <span>{{ getPecaDoItem(item.id_item_stock) }}</span>
+              <span>{{ item.quantidade }}x</span>
               <span>{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
-              <span>Item: {{ item.id_item_stock }}</span>
               <span [class]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
+              @if (item.tipo === 'recebido' && item.status === 'Aprovado') {
+                <button
+                  class="btn-secundario btn-sm"
+                  (click)="responderPedido(item.id, 'Devolvido')"
+                >
+                  Marcar Devolvido
+                </button>
+              }
             </div>
           }
         </div>

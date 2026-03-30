@@ -197,13 +197,19 @@ export class DashboardComponent implements OnInit {
   }
 
   //--Emprestimo--
-  confirmarPedido(item: any): void {
+  confirmarPedido(item: any, quantidade: number): void {
     if (!this.piloto) return;
+
+    if (quantidade < 1 || quantidade > item.quantidade) {
+      this.erro = `Quantidade inválida. Máximo disponível: ${item.quantidade}`;
+      return;
+    }
 
     this.pedidosService
       .criarPedido({
         id_item_stock: item.id,
         id_piloto: this.piloto.id,
+        quantidade,
       })
       .subscribe({
         next: () => {
@@ -314,7 +320,12 @@ export class DashboardComponent implements OnInit {
   carregarHistorico(): void {
     if (!this.piloto) return;
     this.pedidosService.getHistorico(this.piloto.id).subscribe({
-      next: (data) => (this.historico = data),
+      next: (data: any) => {
+        this.historico = [
+          ...data.feitos.map((p: any) => ({ ...p, tipo: 'feito' })),
+          ...data.recebidos.map((p: any) => ({ ...p, tipo: 'recebido' })),
+        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      },
       error: () => (this.erro = 'Erro ao carregar histórico'),
     });
   }

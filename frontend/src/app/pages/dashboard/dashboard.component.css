@@ -522,3 +522,40 @@ h2 {
   color: #e85d04;
   font-size: 0.9rem;
 }
+
+.acoes-modal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-qtd {
+  width: 60px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.input-qtd:focus {
+  outline: none;
+  border-color: #e85d04;
+}
+
+.tipo-historico {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+}
+
+.tipo-feito {
+  background: #e8f4fd;
+  color: #1a73e8;
+}
+
+.tipo-recebido {
+  background: #fef3e2;
+  color: #e85d04;
+}

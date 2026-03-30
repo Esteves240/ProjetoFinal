@@ -75,7 +75,7 @@ export const getPedido = async (req: Request, res: Response): Promise<void> => {
 
 // Piloto faz um pedido de empréstimo
 export const criarPedido = async (req: Request, res: Response): Promise<void> => {
-  const { id_item_stock, id_piloto } = req.body;
+  const { id_item_stock, id_piloto, quantidade } = req.body;
 
   if (!id_item_stock || !id_piloto) {
     res.status(400).json({ error: 'id_item_stock e id_piloto são obrigatórios' });
@@ -99,9 +99,16 @@ export const criarPedido = async (req: Request, res: Response): Promise<void> =>
     return;
   }
 
+  const qtd = quantidade ?? 1;
+
+  if (qtd > item.quantidade) {
+    res.status(400).json({ error: `Só há ${item.quantidade} unidade(s) disponível(eis)` });
+    return;
+  }
+
   const { data, error } = await supabase
     .from('pedido_emprestimo')
-    .insert({ id_item_stock, id_piloto, status: 'Pendente' })
+    .insert({ id_item_stock, id_piloto, status: 'Pendente', quantidade: qtd })
     .select()
     .single();
 
@@ -110,10 +117,11 @@ export const criarPedido = async (req: Request, res: Response): Promise<void> =>
     return;
   }
 
-  res.status(201).json(data);
+  res.status(200).json(data);
 };
 
-// Proprietário aprova, recusa ou marca como devolvido
+
+// Piloto proprietário aprova, recusa ou marca como devolvido
 export const responderPedido = async (req: Request, res: Response): Promise<void> => {
   const { status } = req.body;
 
@@ -135,42 +143,49 @@ export const responderPedido = async (req: Request, res: Response): Promise<void
   }
 
   // Se aprovado, baixa a quantidade do stock
-  if (status === 'Aprovado') {
-    const { data: item } = await supabase
-      .from('item_stock')
-      .select('quantidade')
-      .eq('id', pedido.id_item_stock)
-      .single();
+  const { data: item } = await supabase
+    .from('item_stock')
+    .select('quantidade, disponivel')
+    .eq('id', pedido.id_item_stock)
+    .single();
 
-    if (item) {
-      const novaQuantidade = item.quantidade - 1;
+  // Verificar se ainda há stock antes de aprovar
+  if (status === 'Aprovado') {
+    const quantidadePedida = pedido.quantidade ?? 1;
+
+    if (!item || item.quantidade < quantidadePedida) {
+      res.status(400).json({ error: 'Stock insuficiente para aprovar este pedido' });
+      return;
+    }
+
+    const novaQuantidade = item.quantidade - quantidadePedida;
+    await supabase
+      .from('item_stock')
+      .update({
+        quantidade: novaQuantidade,
+        disponivel: novaQuantidade > 0
+      })
+      .eq('id', pedido.id_item_stock);
+
+    // Recusar automaticamente outros pedidos pendentes do mesmo item
+    // se o stock chegar a zero
+    if (novaQuantidade === 0) {
       await supabase
-        .from('item_stock')
-        .update({
-          quantidade: novaQuantidade,
-          disponivel: novaQuantidade > 0
-        })
-        .eq('id', pedido.id_item_stock);
+        .from('pedido_emprestimo')
+        .update({ status: 'Recusado' })
+        .eq('id_item_stock', pedido.id_item_stock)
+        .eq('status', 'Pendente')
+        .neq('id', pedido.id);
     }
   }
 
-  // Se devolvido, sobe a quantidade do stock
   if (status === 'Devolvido') {
-    const { data: item } = await supabase
+    const quantidadePedida = pedido.quantidade ?? 1;
+    const novaQuantidade = (item?.quantidade ?? 0) + quantidadePedida;
+    await supabase
       .from('item_stock')
-      .select('quantidade')
-      .eq('id', pedido.id_item_stock)
-      .single();
-
-    if (item) {
-      await supabase
-        .from('item_stock')
-        .update({
-          quantidade: item.quantidade + 1,
-          disponivel: true
-        })
-        .eq('id', pedido.id_item_stock);
-    }
+      .update({ quantidade: novaQuantidade, disponivel: true })
+      .eq('id', pedido.id_item_stock);
   }
 
   // Atualizar o status do pedido
@@ -194,15 +209,34 @@ export const responderPedido = async (req: Request, res: Response): Promise<void
 export const getHistorico = async (req: Request, res: Response): Promise<void> => {
   const { id_piloto } = req.params;
 
-  const { data, error } = await supabase
+  // Pedidos feitos pelo piloto
+  const { data: pedidosFeitos } = await supabase
     .from('pedido_emprestimo')
     .select('*')
     .eq('id_piloto', id_piloto);
 
-  if (error) {
-    res.status(500).json({ error: error.message });
-    return;
+  // Items de stock do piloto
+  const { data: itemsDoProprietario } = await supabase
+    .from('item_stock')
+    .select('id')
+    .eq('id_proprietario', id_piloto);
+
+  const ids = (itemsDoProprietario ?? []).map((i: any) => i.id);
+
+  let pedidosRecebidos: any[] = [];
+
+  if (ids.length > 0) {
+    const { data } = await supabase
+      .from('pedido_emprestimo')
+      .select('*')
+      .in('id_item_stock', ids)
+      .neq('id_piloto', id_piloto); // excluir os seus próprios pedidos
+
+    pedidosRecebidos = data ?? [];
   }
 
-  res.status(200).json(data);
+  res.status(200).json({
+    feitos: pedidosFeitos ?? [],
+    recebidos: pedidosRecebidos
+  });
 };
