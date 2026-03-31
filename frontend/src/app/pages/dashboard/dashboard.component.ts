@@ -320,11 +320,29 @@ export class DashboardComponent implements OnInit {
   carregarHistorico(): void {
     if (!this.piloto) return;
     this.pedidosService.getHistorico(this.piloto.id).subscribe({
-      next: (data: any) => {
-        this.historico = [
-          ...data.feitos.map((p: any) => ({ ...p, tipo: 'feito' })),
-          ...data.recebidos.map((p: any) => ({ ...p, tipo: 'recebido' })),
-        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      next: async (data: any) => {
+        // Para os pedidos feitos, buscar o item de stock para conseguir o nome da peça
+        const feitos = await Promise.all(
+          data.feitos.map(async (p: any) => {
+            // Verifica se o item já está no todoPStock
+            const jaExiste = this.todoPStock.find((s) => s.id === p.id_item_stock);
+            if (!jaExiste) {
+              try {
+                const item = await this.http
+                  .get<any>(`${environment.apiUrl}/stock/${p.id_item_stock}`)
+                  .toPromise();
+                if (item) this.todoPStock.push(item);
+              } catch {}
+            }
+            return { ...p, tipo: 'feito' };
+          }),
+        );
+
+        const recebidos = data.recebidos.map((p: any) => ({ ...p, tipo: 'recebido' }));
+
+        this.historico = [...feitos, ...recebidos].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
       },
       error: () => (this.erro = 'Erro ao carregar histórico'),
     });
