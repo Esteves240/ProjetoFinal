@@ -50,7 +50,7 @@ export const getPeca = async (req: Request, res: Response): Promise<void> => {
 };
 
 
-const CATEGORIAS_VALIDAS = [
+export const CATEGORIAS_VALIDAS = [
   'Motor',
   'Suspensão',
   'Transmissão',
