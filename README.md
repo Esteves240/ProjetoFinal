@@ -5,14 +5,6 @@ O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de 
 
 ---
 
-## ODS Associado
-
-**ODS 17 — Parcerias para a Implementação dos Objetivos**
-
-O PaddockShare transforma a competição individual numa comunidade de entreajuda técnica. Em vez de uma equipa desistir por falta de um filtro de ar ou um cabo de embraiagem, pode encontrar e pedir esse componente a outra equipa do paddock em segundos. A plataforma promove a colaboração, reduz o desperdício de recursos e fortalece os laços entre equipas amadoras.
-
----
-
 ## Screenshot
 
 Já meto, juro!
