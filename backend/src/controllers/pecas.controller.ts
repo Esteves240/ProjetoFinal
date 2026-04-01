@@ -63,7 +63,7 @@ export const CATEGORIAS_VALIDAS = [
 ];
 
 export const createPeca = async (req: Request, res: Response): Promise<void> => {
-  const { nome, descricao, categoria, part_number } = req.body;
+  const { nome, descricao, categoria, part_number, universal } = req.body;
 
   if (!nome || !categoria || !part_number) {
     res.status(400).json({ error: 'Nome, categoria e part_number são obrigatórios' });
@@ -79,7 +79,7 @@ export const createPeca = async (req: Request, res: Response): Promise<void> => 
 
   const { data, error } = await supabase
     .from('peca')
-    .insert({ nome, descricao, categoria, part_number })
+    .insert({ nome, descricao, categoria, part_number, universal: universal ?? false })
     .select()
     .single();
 
