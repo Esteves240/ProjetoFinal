@@ -90,12 +90,12 @@ SUPABASE_KEY
 
 ## Arquitetura da Base de Dados
 ```
-Equipa              → id, nome, pais
-Mota                → id, marca, modelo, ano, url_documento
-Piloto              → id, nome, nr_piloto, id_equipa, email, telemovel, id_mota
-Peca                → id, nome, descricao, categoria, part_number
+Equipa              → id, nome, pais, email, created_at
+Mota                → id, marca, modelo, ano, url_documento, created_at
+Piloto              → id, nome, nr_piloto, id_equipa, email, telemovel, id_mota, created_at
+Peca                → id, nome, descricao, categoria, created_at part_number, universal
 Peca_Mota           → id_peca, id_mota
-Item_Stock          → id, id_peca, id_proprietario, quantidade, disponivel, notas
+Item_Stock          → id, id_peca, id_proprietario, quantidade, disponivel, notas, crated_at
 Pedido_Emprestimo   → id, id_item_stock, id_piloto, quantidade, status, created_at
 ```
 
