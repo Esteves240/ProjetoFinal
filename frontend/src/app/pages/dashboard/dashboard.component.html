@@ -46,7 +46,7 @@
     @if (tabAtiva === 'pecas') {
       <div class="secao">
         <div class="secao-header">
-          <h2>Peças Disponíveis no Paddock</h2>
+          <h2>Peças possíveis no Paddock</h2>
           <button class="btn-primario" (click)="mostrarFormPeca = !mostrarFormPeca">
             {{ mostrarFormPeca ? 'Cancelar' : '+ Nova Peça' }}
           </button>
@@ -60,6 +60,13 @@
 
         <!-- Filtros categoria -->
         <div class="filtros">
+          <button
+            class="filtro"
+            [class.ativo]="categoriaFiltro === ''"
+            (click)="filtrarCategoria('')"
+          >
+            Tudo
+          </button>
           @for (cat of categorias; track cat) {
             <button
               class="filtro"
@@ -93,11 +100,6 @@
                 @if (novaPecaForm.get('nome')?.invalid && novaPecaForm.get('nome')?.touched) {
                   <span class="erro">Nome obrigatório</span>
                 }
-              </div>
-
-              <div class="field">
-                <label>Descrição</label>
-                <input type="text" formControlName="descricao" placeholder="descrição opcional" />
               </div>
 
               <div class="field">
@@ -155,7 +157,7 @@
                 <span class="categoria-tag">{{ peca.categoria }}</span>
               </div>
               <h3>{{ peca.nome }}</h3>
-              <p>{{ peca.descricao }}</p>
+              <p>{{ peca.part_number }}</p>
               <button class="btn-secundario" (click)="pedirEmprestimo(peca)">
                 Pedir Empréstimo
               </button>
