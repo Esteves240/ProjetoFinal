@@ -119,9 +119,16 @@ export class DashboardComponent implements OnInit {
           .subscribe({
             next: (compatibilidades) => {
               const idsPecasCompativeis = compatibilidades.map((c: any) => c.id_peca);
-              this.pecas = todasPecas.filter((p) => idsPecasCompativeis.includes(p.id));
+
+              // Mostrar peças compatíveis com a mota OU universais
+              this.pecas = todasPecas.filter(
+                (p) => idsPecasCompativeis.includes(p.id) || p.universal === true,
+              );
             },
-            error: () => (this.pecas = []),
+            error: () => {
+              // Se não houver compatibilidades, mostra só as universais
+              this.pecas = todasPecas.filter((p) => p.universal === true);
+            },
           });
       },
       error: () => (this.erro = 'Erro ao carregar peças'),
