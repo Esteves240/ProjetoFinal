@@ -6,11 +6,12 @@ import { AuthService } from '../../services/auth.service';
 import { PilotosService } from '../../services/pilotos.service';
 import { MotasService } from '../../services/motas.service';
 import { PecasService } from '../../services/pecas.service';
+import { FooterComponent } from '../../components/footer/footer.component';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FooterComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css',
 })

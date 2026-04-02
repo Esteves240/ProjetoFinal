@@ -1,21 +1,6 @@
 <div class="layout">
   <!-- Header -->
-  <header>
-    <div class="header-content">
-      <h1>PaddockShare</h1>
-      <div class="piloto-info">
-        <span>{{ piloto?.nome }} · #{{ piloto?.nr_piloto }}</span>
-        @if (motaPiloto) {
-          <span class="mota-badge"> {{ motaPiloto.marca }} {{ motaPiloto.modelo }}</span>
-          @if (motaPiloto.url_documento) {
-            <button class="btn-catalogo" (click)="downloadCatalogo()">Catálogo</button>
-          }
-        }
-        <button class="btn-perfil" routerLink="/perfil">Perfil</button>
-        <button class="btn-logout" (click)="logout()">Sair</button>
-      </div>
-    </div>
-  </header>
+  <app-header [piloto]="piloto" [motaPiloto]="motaPiloto"> </app-header>
 
   <!-- Mensagens -->
   @if (mensagem) {
@@ -45,8 +30,8 @@
     <!-- TAB: PEÇAS -->
     @if (tabAtiva === 'pecas') {
       <div class="secao">
-        <div class="secao-header">
-          <h2>Peças Disponíveis no Paddock</h2>
+        <div class="flex-header">
+          <h2>Peças possíveis no Paddock</h2>
           <button class="btn-primario" (click)="mostrarFormPeca = !mostrarFormPeca">
             {{ mostrarFormPeca ? 'Cancelar' : '+ Nova Peça' }}
           </button>
@@ -58,8 +43,25 @@
           </div>
         }
 
+        <!-- Pesquisa por part number -->
+        <div class="pesquisa-bar">
+          <input
+            type="text"
+            placeholder="Pesquisar por part number ou nome da peça..."
+            [value]="partNumberFiltro"
+            (input)="filtrarPartNumber($any($event.target).value)"
+          />
+        </div>
+
         <!-- Filtros categoria -->
         <div class="filtros">
+          <button
+            class="filtro"
+            [class.ativo]="categoriaFiltro === ''"
+            (click)="filtrarCategoria('')"
+          >
+            Tudo
+          </button>
           @for (cat of categorias; track cat) {
             <button
               class="filtro"
@@ -93,11 +95,6 @@
                 @if (novaPecaForm.get('nome')?.invalid && novaPecaForm.get('nome')?.touched) {
                   <span class="erro">Nome obrigatório</span>
                 }
-              </div>
-
-              <div class="field">
-                <label>Descrição</label>
-                <input type="text" formControlName="descricao" placeholder="descrição opcional" />
               </div>
 
               <div class="field">
@@ -145,17 +142,17 @@
         }
 
         <!-- Lista de peças -->
-        @if (pecas.length === 0) {
+        @if (pecasFiltradas.length === 0) {
           <p class="vazio">Nenhuma peça encontrada.</p>
         }
         <div class="grid">
-          @for (peca of pecas; track peca.id) {
+          @for (peca of pecasFiltradas; track peca.id) {
             <div class="card">
               <div class="card-header">
                 <span class="categoria-tag">{{ peca.categoria }}</span>
               </div>
               <h3>{{ peca.nome }}</h3>
-              <p>{{ peca.descricao }}</p>
+              <p>{{ peca.part_number }}</p>
               <button class="btn-secundario" (click)="pedirEmprestimo(peca)">
                 Pedir Empréstimo
               </button>
@@ -221,7 +218,7 @@
     <!-- TAB: STOCK -->
     @if (tabAtiva === 'stock') {
       <div class="secao">
-        <div class="secao-header">
+        <div class="flex-header">
           <h2>O Meu Stock</h2>
           <button class="btn-primario" (click)="mostrarFormStock = !mostrarFormStock">
             {{ mostrarFormStock ? 'Cancelar' : '+ Adicionar ao Stock' }}
@@ -287,7 +284,7 @@
     <!-- TAB: PEDIDOS -->
     @if (tabAtiva === 'pedidos') {
       <div class="secao">
-        <h2>Pedidos Pendentes</h2>
+        <h2>Pedidos Pendentes de Aprovação</h2>
 
         @if (pedidosPendentes.length === 0) {
           <p class="vazio">Nenhum pedido pendente.</p>
@@ -337,6 +334,11 @@
               </span>
               <span>{{ getPecaDoItem(item.id_item_stock) }}</span>
               <span>{{ item.quantidade }}x</span>
+              @if (item.tipo === 'feito') {
+                <span class="piloto-historico">{{ getNomePilotoDoItem(item.id_item_stock) }}</span>
+              } @else {
+                <span class="piloto-historico">{{ getNomePiloto(item.id_piloto) }}</span>
+              }
               <span>{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
               <span [class]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
               @if (item.tipo === 'recebido' && item.status === 'Aprovado') {
@@ -354,3 +356,4 @@
     }
   </main>
 </div>
+<app-footer />
