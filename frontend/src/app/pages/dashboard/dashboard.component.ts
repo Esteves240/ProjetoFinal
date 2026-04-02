@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit {
   mostrarModalPedido: boolean = false;
   pilotos: any[] = [];
   todoPStock: any[] = [];
+  pecasFiltradas: any[] = [];
 
   // Filtros
   categorias = [
@@ -60,6 +61,7 @@ export class DashboardComponent implements OnInit {
   aCarregar: boolean = false;
   mensagem: string = '';
   erro: string = '';
+  partNumberFiltro: string = '';
 
   constructor(
     private authService: AuthService,
@@ -108,33 +110,50 @@ export class DashboardComponent implements OnInit {
   carregarPecas(): void {
     if (!this.piloto?.id_mota) {
       this.pecas = [];
+      this.pecasFiltradas = [];
       return;
     }
 
-    const filtros = this.categoriaFiltro ? { categoria: this.categoriaFiltro } : undefined;
+    const filtros: any = {};
+    if (this.categoriaFiltro) filtros.categoria = this.categoriaFiltro;
 
     this.pecasService.getPecas(filtros).subscribe({
       next: (todasPecas) => {
-        // Buscar compatibilidades da mota do piloto
         this.http
           .get<any[]>(`${environment.apiUrl}/peca-mota/mota/${this.piloto.id_mota}`)
           .subscribe({
             next: (compatibilidades) => {
               const idsPecasCompativeis = compatibilidades.map((c: any) => c.id_peca);
-
-              // Mostrar peças compatíveis com a mota OU universais
               this.pecas = todasPecas.filter(
                 (p) => idsPecasCompativeis.includes(p.id) || p.universal === true,
               );
+              this.aplicarFiltroPesquisa();
             },
             error: () => {
-              // Se não houver compatibilidades, mostra só as universais
               this.pecas = todasPecas.filter((p) => p.universal === true);
+              this.aplicarFiltroPesquisa();
             },
           });
       },
       error: () => (this.erro = 'Erro ao carregar peças'),
     });
+  }
+
+  aplicarFiltroPesquisa(): void {
+    if (!this.partNumberFiltro) {
+      this.pecasFiltradas = [...this.pecas];
+      return;
+    }
+
+    const termo = this.partNumberFiltro.toLowerCase();
+    this.pecasFiltradas = this.pecas.filter(
+      (p) => p.part_number?.toLowerCase().includes(termo) || p.nome?.toLowerCase().includes(termo),
+    );
+  }
+
+  filtrarPartNumber(valor: string): void {
+    this.partNumberFiltro = valor;
+    this.aplicarFiltroPesquisa();
   }
 
   filtrarCategoria(categoria: string): void {

@@ -131,6 +131,28 @@ h2 {
   color: #e85d04;
 }
 
+/* -----------search bar */
+.pesquisa-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.pesquisa-bar input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.pesquisa-bar input:focus {
+  outline: none;
+  border-color: #e85d04;
+}
+
 /* ==========================================
    3. COMPONENTES E BOTÕES
    ========================================== */

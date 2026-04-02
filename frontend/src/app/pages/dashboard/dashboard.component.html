@@ -43,6 +43,16 @@
           </div>
         }
 
+        <!-- Pesquisa por part number -->
+        <div class="pesquisa-bar">
+          <input
+            type="text"
+            placeholder="Pesquisar por part number ou nome da peça..."
+            [value]="partNumberFiltro"
+            (input)="filtrarPartNumber($any($event.target).value)"
+          />
+        </div>
+
         <!-- Filtros categoria -->
         <div class="filtros">
           <button
@@ -132,11 +142,11 @@
         }
 
         <!-- Lista de peças -->
-        @if (pecas.length === 0) {
+        @if (pecasFiltradas.length === 0) {
           <p class="vazio">Nenhuma peça encontrada.</p>
         }
         <div class="grid">
-          @for (peca of pecas; track peca.id) {
+          @for (peca of pecasFiltradas; track peca.id) {
             <div class="card">
               <div class="card-header">
                 <span class="categoria-tag">{{ peca.categoria }}</span>
