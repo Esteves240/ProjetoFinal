@@ -9,11 +9,12 @@ import { PedidosService } from '../../services/pedidos.service';
 import { MotasService } from '../../services/motas.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { FooterComponent } from '../../components/footer/footer.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FooterComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -72,7 +73,7 @@ export class DashboardComponent implements OnInit {
     this.piloto = this.authService.getPiloto();
 
     this.novaPecaForm = this.fb.group({
-      nome: ['', Validators.required],
+      nome: ['', [Validators.required, Validators.minLength(3)]],
       descricao: [''],
       categoria: ['', Validators.required],
       part_number: ['', Validators.required],
@@ -275,6 +276,11 @@ export class DashboardComponent implements OnInit {
   }
 
   toggleDisponivel(item: any): void {
+    if (!item.disponivel && item.quantidade === 0) {
+      this.erro = 'Não é possível marcar como disponível com quantidade 0.';
+      return;
+    }
+
     this.stockService.updateItemStock(item.id, { disponivel: !item.disponivel }).subscribe({
       next: () => this.carregarStock(),
       error: () => (this.erro = 'Erro ao atualizar item'),
@@ -353,6 +359,12 @@ export class DashboardComponent implements OnInit {
       },
       error: () => (this.erro = 'Erro ao carregar histórico'),
     });
+  }
+
+  getNomePilotoDoItem(id_item_stock: string): string {
+    const item = this.todoPStock.find((s) => s.id === id_item_stock);
+    if (!item) return 'piloto desconhecido';
+    return this.getNomePiloto(item.id_proprietario);
   }
 
   getNomePeca(id_peca: string): string {
