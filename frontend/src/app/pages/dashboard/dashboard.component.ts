@@ -325,6 +325,7 @@ export class DashboardComponent implements OnInit {
         this.mensagem = `Pedido ${status.toLowerCase()} com sucesso!`;
         this.carregarPedidos();
         this.carregarStock();
+        this.carregarHistorico();
       },
       error: () => (this.erro = 'Erro ao responder ao pedido'),
     });
