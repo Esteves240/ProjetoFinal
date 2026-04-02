@@ -284,7 +284,7 @@
     <!-- TAB: PEDIDOS -->
     @if (tabAtiva === 'pedidos') {
       <div class="secao">
-        <h2>Pedidos Pendentes</h2>
+        <h2>Pedidos Pendentes de Aprovação</h2>
 
         @if (pedidosPendentes.length === 0) {
           <p class="vazio">Nenhum pedido pendente.</p>
@@ -335,11 +335,9 @@
               <span>{{ getPecaDoItem(item.id_item_stock) }}</span>
               <span>{{ item.quantidade }}x</span>
               @if (item.tipo === 'feito') {
-                <span class="piloto-historico"
-                  >a {{ getNomePilotoDoItem(item.id_item_stock) }}</span
-                >
+                <span class="piloto-historico">{{ getNomePilotoDoItem(item.id_item_stock) }}</span>
               } @else {
-                <span class="piloto-historico">a {{ getNomePiloto(item.id_piloto) }}</span>
+                <span class="piloto-historico">{{ getNomePiloto(item.id_piloto) }}</span>
               }
               <span>{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
               <span [class]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
