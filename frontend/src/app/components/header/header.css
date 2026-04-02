@@ -1,0 +1,161 @@
+/* HEADER BASE */
+header {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+header h1 {
+  color: #e85d04;
+  margin: 0;
+  font-size: 1.5rem;
+  z-index: 201; /* Fica acima do menu mobile se necessário */
+}
+
+/* INFO PILOTO (Desktop) */
+.piloto-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.mota-badge {
+  color: #ccc;
+  font-size: 0.85rem;
+  background: #333;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* BOTÕES GERAIS */
+.btn-catalogo,
+.btn-perfil,
+.btn-logout {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.btn-catalogo {
+  border: 1px solid #e85d04;
+  color: #e85d04;
+}
+.btn-catalogo:hover {
+  background: #e85d04;
+  color: white;
+}
+
+.btn-perfil {
+  border: 1px solid #666;
+  color: #ccc;
+}
+.btn-perfil:hover {
+  border-color: #e85d04;
+  color: #e85d04;
+}
+
+.btn-logout {
+  border: 1px solid #e85d04;
+  color: #e85d04;
+}
+.btn-logout:hover {
+  background: #e85d04;
+  color: white;
+}
+
+/* HAMBURGER */
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 201;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ===================== */
+/* 📱 MOBILE (≤ 767px) */
+/* ===================== */
+
+@media (max-width: 767px) {
+  header {
+    padding: 1rem; /* Reduz padding em mobile para ganhar espaço */
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+  }
+
+  .piloto-info {
+    /* Estado Escondido */
+    display: none;
+    flex-direction: column;
+    align-items: stretch; /* Botões ocupam a largura toda */
+
+    /* Posicionamento */
+    position: absolute;
+    top: calc(100% + 1rem); /* Cola logo abaixo do header */
+    right: -1rem; /* Alinha com a borda do ecrã compensando o padding do header */
+    width: calc(100% + 2rem); /* Ocupa a largura total do ecrã */
+
+    background: #1a1a1a;
+    padding: 1.5rem;
+    gap: 1rem;
+    border-top: 1px solid #333;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+  }
+
+  .piloto-info.open {
+    display: flex;
+  }
+
+  .piloto-info span {
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mota-badge {
+    text-align: center;
+    background: transparent;
+    color: #e85d04;
+  }
+
+  .btn-catalogo,
+  .btn-perfil,
+  .btn-logout {
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem; /* Área de toque maior para dedos */
+    font-size: 1rem;
+  }
+}

@@ -10,11 +10,12 @@ import { MotasService } from '../../services/motas.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { HeaderComponent } from '../../components/header/header';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FooterComponent, HeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })

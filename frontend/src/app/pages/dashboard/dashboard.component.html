@@ -1,21 +1,6 @@
 <div class="layout">
   <!-- Header -->
-  <header>
-    <div class="header-content">
-      <h1>PaddockShare</h1>
-      <div class="piloto-info">
-        <span>{{ piloto?.nome }} · #{{ piloto?.nr_piloto }}</span>
-        @if (motaPiloto) {
-          <span class="mota-badge"> {{ motaPiloto.marca }} {{ motaPiloto.modelo }}</span>
-          @if (motaPiloto.url_documento) {
-            <button class="btn-catalogo" (click)="downloadCatalogo()">Catálogo</button>
-          }
-        }
-        <button class="btn-perfil" routerLink="/perfil">Perfil</button>
-        <button class="btn-logout" (click)="logout()">Sair</button>
-      </div>
-    </div>
-  </header>
+  <app-header [piloto]="piloto" [motaPiloto]="motaPiloto"> </app-header>
 
   <!-- Mensagens -->
   @if (mensagem) {
