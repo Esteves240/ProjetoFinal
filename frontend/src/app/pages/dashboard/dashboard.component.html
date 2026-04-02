@@ -30,7 +30,7 @@
     <!-- TAB: PEÇAS -->
     @if (tabAtiva === 'pecas') {
       <div class="secao">
-        <div class="secao-header">
+        <div class="flex-header">
           <h2>Peças possíveis no Paddock</h2>
           <button class="btn-primario" (click)="mostrarFormPeca = !mostrarFormPeca">
             {{ mostrarFormPeca ? 'Cancelar' : '+ Nova Peça' }}
@@ -208,7 +208,7 @@
     <!-- TAB: STOCK -->
     @if (tabAtiva === 'stock') {
       <div class="secao">
-        <div class="secao-header">
+        <div class="flex-header">
           <h2>O Meu Stock</h2>
           <button class="btn-primario" (click)="mostrarFormStock = !mostrarFormStock">
             {{ mostrarFormStock ? 'Cancelar' : '+ Adicionar ao Stock' }}
