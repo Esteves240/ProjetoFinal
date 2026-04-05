@@ -5,12 +5,6 @@ O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de 
 
 ---
 
-## Screenshot
-
-Já meto, juro!
-
----
-
 ## Stack Tecnológica
 
 | Camada | Tecnologia |
@@ -193,3 +187,11 @@ Esta separação permite que vários pilotos tenham a mesma peça disponível de
 ## CI/CD
 
 [![CI](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml/badge.svg)](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml)
+
+---
+
+## Screenshot
+
+<img width="1919" height="922" alt="imagem" src="https://github.com/user-attachments/assets/58abee56-2b9a-4b23-8850-469bb6c978f0" />
+
+
