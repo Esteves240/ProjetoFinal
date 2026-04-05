@@ -1,7 +1,7 @@
 # PaddockShare
 
 Nos desportos motorizados, a diferença entre terminar a etapa ou abandonar a prova pode resumir-se a um simples parafuso. Para as equipas mais amadoras, o maior desafio não é apenas a pista, mas a gestão de recursos limitados. 
-O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de stock. Através de uma plataforma intuitiva permitindo que pilotos identifiquem peças pelo catálogo oficial da sua mota, consultem quem tem a peça disponível no paddock, e façam pedidos de empréstimo em tempo real — promovendo o companheirismo e a eficiência técnica entre pilotos e equipas.
+O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de stock. Através de uma plataforma intuitiva permitindo que pilotos identifiquem peças pelo catálogo oficial da sua mota, consultem quem tem a peça disponível no paddock, e façam pedidos de empréstimo em tempo real, promovendo o companheirismo e a eficiência técnica entre pilotos e equipas.
 
 ---
 
@@ -164,13 +164,13 @@ Pedido_Emprestimo   → id, id_item_stock, id_piloto, quantidade, status, create
 - Catálogo de peças filtrado pela mota do piloto com part number oficial
 - Compatibilidade peça ↔ mota — peças universais e específicas
 - Gestão de stock com quantidade por piloto
-- Motor de busca por categoria e part number
+- Motor de busca por categoria, part number e nome
 - Fluxo completo de empréstimo — pedido com quantidade, aprovação, recusa e devolução
 - Proteção de stock — aprovação automática recusa pedidos pendentes quando stock chega a zero
 - Histórico de empréstimos dos dois lados — pedidos feitos e recebidos
 - Download do catálogo oficial de peças da mota (exploded view)
 - Pipeline CI/CD com GitHub Actions — lint, build e testes automáticos
-- 11 testes unitários com Jest
+- Testes unitários com Jest
 
 ---
 
