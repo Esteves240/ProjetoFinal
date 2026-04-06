@@ -5,6 +5,12 @@ O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de 
 
 ---
 
+## CI/CD
+
+[![CI](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml/badge.svg)](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml)
+
+---
+
 ## Stack Tecnológica
 
 | Camada | Tecnologia |
@@ -181,12 +187,6 @@ Pedido_Emprestimo   → id, id_item_stock, id_piloto, quantidade, status, create
 A decisão mais importante foi separar a definição técnica de uma peça da sua existência física no paddock. Uma `Peca` representa o componente técnico — nome, categoria, part number oficial da marca. Um `Item_Stock` representa a unidade física que um piloto tem na sua mala e que pode emprestar, com quantidade e notas de estado.
 
 Esta separação permite que vários pilotos tenham a mesma peça disponível de forma independente, evita duplicação de dados, e torna a pesquisa muito mais eficiente — quando um piloto procura um filtro de ar para a sua KTM 450 Rally, o sistema cruza a tabela `Peca_Mota` com o `Item_Stock` e devolve imediatamente quem tem aquela peça disponível no paddock.
-
----
-
-## CI/CD
-
-[![CI](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml/badge.svg)](https://github.com/Esteves240/ProjetoFinal/actions/workflows/ci.yml)
 
 ---
 
