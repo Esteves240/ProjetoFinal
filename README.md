@@ -24,7 +24,7 @@ O Paddock Share nasce para garantir que ninguém fica pelo caminho por falta de 
 
 | Serviço | URL |
 |---------|-----|
-| Frontend | https://paddockshare.vercel.app |
+| Frontend | https://projeto-final-black.vercel.app/login |
 | Backend API | https://paddockshare-backend.onrender.com |
 
 ---
